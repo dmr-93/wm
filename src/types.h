@@ -2,20 +2,7 @@
 #define TYPES_H
 
 #include <X11/Xlib.h>
-
-/* =========================================================================
- * Dimensões
- * ========================================================================= */
-#define TITLE_HEIGHT    24
-#define TASKBAR_H       47
-#define TASKBAR_PAD     10
-#define BTN_W           21
-#define BTN_H           21
-#define BTN_MARGIN       2
-#define BTN_GAP          0
-#define MIN_WIN_W       80
-#define MIN_WIN_H       60
-#define RBW              3   /* largura borda vermelha de resize */
+#include "config.h"
 
 /* Macros para posição do client dentro do frame
  * NOTA: Todas as janelas gerenciadas têm decoração forçada, então os valores
@@ -30,21 +17,6 @@
 #define BTN_MIN_X(iw)   (BTN_CLOSE_X(iw) - BTN_W)
 #define BTN_RSZ_X(iw)   (BTN_MIN_X(iw) - BTN_W)
 #define BTN_Y           BTN_MARGIN
-
-/* =========================================================================
- * Flag para gap da taskbar
- * ========================================================================= */
-#define TASKBAR_GAP_ENABLED 1   /* 1 = taskbar sobe 1px, pinta pixel abaixo c/ bg; 0 = antigo */
-
-/* =========================================================================
- * Cores — todas em hexadecimal, convertidas via SET_SOURCE_HEX()
- * ========================================================================= */
-#define C_BG_HEX        0x444444
-#define C_TITLE_ACT     0x0015BC
-#define C_TITLE_INACT   0x9B9B9B
-#define C_FRAME         0xD6D6D6
-#define C_BORDER_LT     0xFBFBFA
-#define C_BORDER_RB     0xA5AEAE
 
 /* =========================================================================
  * Hit-test constants

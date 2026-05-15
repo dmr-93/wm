@@ -4,7 +4,7 @@ LDFLAGS  = $(shell pkg-config --cflags --libs x11 cairo fontconfig) -lm
 
 SRCDIR   = src
 OBJDIR   = obj
-SRCS     = main.c atoms.c draw.c window.c menu.c events.c
+SRCS     = main.c atoms.c draw.c button.c window.c menu.c events.c
 OBJS     = $(SRCS:%.c=$(OBJDIR)/%.o)
 TARGET   = inferno_wm
 

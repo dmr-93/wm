@@ -1,15 +1,11 @@
 #ifndef DRAW_H
 #define DRAW_H
 
+#include <X11/Xlib.h>
 #include <cairo/cairo.h>
+#include "config.h"
 
 struct Win; /* forward declaration */
-
-/* =========================================================================
- * Constantes de fonte padronizadas
- * ========================================================================= */
-#define FONT_SIZE       13
-#define FONT_PAD_LEFT   10
 
 /* Macro para converter hex → float RGB na chamada do Cairo */
 #define SET_SOURCE_HEX(cr, hex) \
@@ -30,8 +26,6 @@ void free_logo(void);
 void create_taskbar_pixmap(void);
 void destroy_taskbar_pixmap(void);
 void flush_taskbar_pixmap(void);
-void draw_bevel(cairo_t *cr, double x, double y, double w, double h, int raised);
-void draw_btn(cairo_t *cr, int x, int y, const char *type);
 void draw_frame(struct Win *iw);
 void draw_taskbar(void);
 void draw_text_centered(cairo_t *cr, double x, double y, double h,

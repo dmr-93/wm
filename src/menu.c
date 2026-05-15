@@ -1,5 +1,6 @@
 #include "types.h"
 #include "draw.h"
+#include "button.h"
 #include "menu.h"
 #include "window.h"
 
