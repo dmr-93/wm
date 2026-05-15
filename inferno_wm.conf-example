@@ -1,0 +1,9 @@
+{
+    "menu": [
+        {"str":"xterm", "cmd":"xterm"},
+        {"str":"xclock", "cmd":"xclock"},
+        {"str":"xcalc", "cmd":"xcalc"},
+        {"str":"xeyes", "cmd":"xeyes"},
+        {"str":"Run...", "cmd":"xfce4-appfinder"}
+    ]
+}

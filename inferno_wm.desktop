@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Inferno WM
+Comment=Inferno WM
+Exec=/usr/local/bin/inferno_wm
+TryExec=/usr/local/bin/inferno_wm
+Type=Application
+DesktopNames=Inferno WM
