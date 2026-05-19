@@ -191,16 +191,6 @@ int skip_window(Window w) {
 }
 
 /* =========================================================================
- * Posicionamento em cascata
- * ========================================================================= */
-int px = 20, py = 20;
-
-static void next_pos(int *ox, int *oy) {
-    *ox = px; *oy = py; px += 24; py += 24;
-    if (px > SW/2) { px = 20; py = 20; }
-}
-
-/* =========================================================================
  * manage — gerenciar janela
  *
  * NOTA: Todas as janelas gerenciadas recebem decoração (titlebar + bordas +
@@ -233,14 +223,25 @@ void manage(Window client, int pre) {
     iw->w = cw + 2;
     iw->h = ch + TITLE_HEIGHT + 2;
 
-    if (wa.x != 0 || wa.y != 0) { iw->x = wa.x; iw->y = wa.y; }
-    else {
-        Window trans = None; XGetTransientForHint(dpy, client, &trans);
-        if (trans != None) {
-            Win *par = by_client(trans);
-            if (par) { iw->x = par->x + (par->w-iw->w)/2; iw->y = par->y + (par->h-iw->h)/2; }
-            else     { iw->x = (SW-iw->w)/2; iw->y = (SH-TASKBAR_H-iw->h)/2; }
-        } else { next_pos(&iw->x, &iw->y); }
+    /* Sempre consulta WM_TRANSIENT_FOR e armazena referência ao pai,
+     * independentemente da posição inicial da janela. Isso garante que
+     * quando um diálogo (ex: "About") for fechado, o foco retorne ao
+     * pai correto e não a qualquer outra janela na lista. */
+    Window trans = None;
+    XGetTransientForHint(dpy, client, &trans);
+    Win *par = (trans != None) ? by_client(trans) : NULL;
+    if (par) iw->transient_for = par;
+
+    if (wa.x != 0 || wa.y != 0) {
+        iw->x = wa.x; iw->y = wa.y;
+    } else {
+        if (par) {
+            iw->x = par->x + (par->w-iw->w)/2;
+            iw->y = par->y + (par->h-iw->h)/2;
+        } else {
+            iw->x = (SW-iw->w)/2;
+            iw->y = (SH-TASKBAR_H-iw->h)/2;
+        }
     }
     if (iw->x < 0) iw->x = 0;
     if (iw->y < 0) iw->y = 0;
@@ -341,8 +342,27 @@ void unmanage(Window client) {
     XFlush(dpy);
 
     if (focused == iw) {
-        focus_next_available();
+        /* Se esta janela foi aberta por um pai (transient_for) e o pai
+         * ainda está disponível, foca o pai em vez de qualquer janela. */
+        Win *par = iw->transient_for;
+        if (par && !par->closing && !par->minimized) {
+            focused = par;
+            XRaiseWindow(dpy, par->frame);
+            XSetInputFocus(dpy, par->client, RevertToPointerRoot, CurrentTime);
+            set_net_active(par->client);
+            draw_frame(par);
+        } else {
+            focus_next_available();
+        }
     }
+
+    /* Limpa referências transient_for em filhos que apontavam para esta janela */
+    for (Win *c = wins; c; c = c->next) {
+        if (c->transient_for == iw) {
+            c->transient_for = NULL;
+        }
+    }
+
     free(iw);
     update_client_list();
     draw_taskbar();

@@ -399,9 +399,9 @@ void taskbar_click(int lx) {
         cairo_text_extents_t te; cairo_text_extents(dc,lbl,&te);
         int bw=(int)te.x_advance+TASKBAR_PAD*2;
         if (lx>=bx&&lx<bx+bw) {
+            /* No estilo Inferno OS, só janelas minimizadas têm botão.
+             * Clicar restaura a janela e o botão é removido da taskbar. */
             if (c->minimized) restore(c);
-            else if (focused==c) minimize(c);
-            else { XRaiseWindow(dpy,c->frame); focus_win(c); }
             break;
         }
         bx+=bw+1;

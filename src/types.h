@@ -42,6 +42,7 @@ typedef struct Win {
     int         closing;
     int         decorated;        /* 1 = tem titlebar/bordas/botoes; 0 = sem decoracao (fullscreen) */
     struct Win *next;
+    struct Win *transient_for;    /* janela pai que abriu esta (WM_TRANSIENT_FOR), ou NULL */
 } Win;
 
 /* =========================================================================
@@ -67,8 +68,6 @@ extern int      SW, SH;
 extern Cursor cur_normal, cur_move, cur_br;
 
 extern int x_err, wm_running;
-
-extern int px, py;
 
 extern MenuItem *menu_items;
 extern int       menu_count;

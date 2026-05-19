@@ -2,8 +2,6 @@
 #include "draw.h"
 #include "button.h"
 
-#include <string.h>
-
 /* =========================================================================
  * draw_bevel — bevel soft 2px
  * ========================================================================= */
@@ -27,9 +25,9 @@ void draw_bevel(cairo_t *cr, double x, double y, double w, double h, int raised)
 }
 
 /* =========================================================================
- * draw_btn — botão com bevel + gradiente + símbolo (21x21)
+ * draw_btn — botão com bevel + gradiente + imagem XPM centralizada (21x21)
  * ========================================================================= */
-void draw_btn(cairo_t *cr, int x, int y, const char *type) {
+void draw_btn(cairo_t *cr, int x, int y, cairo_surface_t *surf) {
     draw_bevel(cr, x, y, BTN_W, BTN_H, 1);
     cairo_pattern_t *pat = cairo_pattern_create_linear(x, y+BTN_H, x+BTN_W, y);
     cairo_pattern_add_color_stop_rgb(pat, 0, 0.639, 0.639, 0.639);
@@ -39,23 +37,25 @@ void draw_btn(cairo_t *cr, int x, int y, const char *type) {
     cairo_fill(cr);
     cairo_pattern_destroy(pat);
 
-    SET_SOURCE_HEX(cr, 0x000000);
-    cairo_set_line_width(cr, 2.0);
+    /* Desenha a imagem XPM centralizada no botão, escalada proporcionalmente */
+    if (surf) {
+        int img_w = cairo_image_surface_get_width(surf);
+        int img_h = cairo_image_surface_get_height(surf);
+        if (img_w > 0 && img_h > 0) {
+            /* Escala para caber dentro do botão com 2px de padding */
+            int max_draw = BTN_W - 4;
+            double scale = (double)max_draw / (img_w > img_h ? img_w : img_h);
+            int draw_w = (int)(img_w * scale);
+            int draw_h = (int)(img_h * scale);
+            int ix = x + (BTN_W - draw_w) / 2;
+            int iy = y + (BTN_H - draw_h) / 2;
 
-    int off = 6;
-
-    if (strcmp(type, "X") == 0) {
-        cairo_move_to(cr, x+off,        y+off);
-        cairo_line_to(cr, x+BTN_W-off,  y+BTN_H-off);
-        cairo_move_to(cr, x+BTN_W-off,  y+off);
-        cairo_line_to(cr, x+off,         y+BTN_H-off);
-        cairo_stroke(cr);
-    } else if (strcmp(type, "_") == 0) {
-        cairo_move_to(cr, x+off,        y+BTN_H-off);
-        cairo_line_to(cr, x+BTN_W-off,  y+BTN_H-off);
-        cairo_stroke(cr);
-    } else { /* "[]" resize */
-        cairo_rectangle(cr, x+off, y+off, BTN_W-off*2, BTN_H-off*2);
-        cairo_stroke(cr);
+            cairo_save(cr);
+            cairo_translate(cr, ix, iy);
+            cairo_scale(cr, scale, scale);
+            cairo_set_source_surface(cr, surf, 0, 0);
+            cairo_paint(cr);
+            cairo_restore(cr);
+        }
     }
 }

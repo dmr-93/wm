@@ -14,6 +14,9 @@ struct Win; /* forward declaration */
                               ((hex)&0xFF)/255.0)
 
 extern cairo_surface_t *logo_surf;
+extern cairo_surface_t *close_btn_surf;
+extern cairo_surface_t *minimize_btn_surf;
+extern cairo_surface_t *max_resize_btn_surf;
 
 /* Backing pixmap para a taskbar — registrado como background via
  * XSetWindowBackgroundPixmap. draw_taskbar() desenha no pixmap

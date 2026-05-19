@@ -2,6 +2,9 @@
 #include "draw.h"
 #include "button.h"
 #include "vitalogo.h"
+#include "close.xpm.h"
+#include "minimize.xpm.h"
+#include "max_resize.xpm.h"
 
 #include <cairo/cairo-xlib.h>
 #include <string.h>
@@ -12,6 +15,9 @@
  * Logo surface — criado a partir do XPM embutido em vitalogo.h
  * ========================================================================= */
 cairo_surface_t *logo_surf = NULL;
+cairo_surface_t *close_btn_surf = NULL;
+cairo_surface_t *minimize_btn_surf = NULL;
+cairo_surface_t *max_resize_btn_surf = NULL;
 
 /* Backing pixmap para a taskbar — registrado como background via
  * XSetWindowBackgroundPixmap. draw_taskbar() desenha no pixmap
@@ -106,15 +112,33 @@ static cairo_surface_t *xpm_to_cairo_surface(char *xpm[]) {
 }
 
 void init_logo(void) {
-    if (logo_surf) return;
-    logo_surf = xpm_to_cairo_surface(vitalogo);
     if (!logo_surf) {
-        fprintf(stderr, "[inferno_wm] Aviso: falha ao criar logo do XPM embutido.\n");
+        logo_surf = xpm_to_cairo_surface(vitalogo);
+        if (!logo_surf)
+            fprintf(stderr, "[inferno_wm] Aviso: falha ao criar logo do XPM embutido.\n");
+    }
+    if (!close_btn_surf) {
+        close_btn_surf = xpm_to_cairo_surface(close_xpm);
+        if (!close_btn_surf)
+            fprintf(stderr, "[inferno_wm] Aviso: falha ao criar surface close XPM.\n");
+    }
+    if (!minimize_btn_surf) {
+        minimize_btn_surf = xpm_to_cairo_surface(minimize_xpm);
+        if (!minimize_btn_surf)
+            fprintf(stderr, "[inferno_wm] Aviso: falha ao criar surface minimize XPM.\n");
+    }
+    if (!max_resize_btn_surf) {
+        max_resize_btn_surf = xpm_to_cairo_surface(max_resize_xpm);
+        if (!max_resize_btn_surf)
+            fprintf(stderr, "[inferno_wm] Aviso: falha ao criar surface max_resize XPM.\n");
     }
 }
 
 void free_logo(void) {
     if (logo_surf) { cairo_surface_destroy(logo_surf); logo_surf = NULL; }
+    if (close_btn_surf) { cairo_surface_destroy(close_btn_surf); close_btn_surf = NULL; }
+    if (minimize_btn_surf) { cairo_surface_destroy(minimize_btn_surf); minimize_btn_surf = NULL; }
+    if (max_resize_btn_surf) { cairo_surface_destroy(max_resize_btn_surf); max_resize_btn_surf = NULL; }
 }
 
 /* =========================================================================
@@ -218,9 +242,9 @@ void draw_frame(Win *iw) {
                        iw->title[0] ? iw->title : " ");
 
     /* Botões: fechar à direita, minimizar, resize — sem gap */
-    draw_btn(cr, BTN_CLOSE_X(iw), BTN_Y, "X");
-    draw_btn(cr, BTN_MIN_X(iw),   BTN_Y, "_");
-    draw_btn(cr, BTN_RSZ_X(iw),   BTN_Y, "[]");
+    draw_btn(cr, BTN_CLOSE_X(iw), BTN_Y, close_btn_surf);
+    draw_btn(cr, BTN_MIN_X(iw),   BTN_Y, minimize_btn_surf);
+    draw_btn(cr, BTN_RSZ_X(iw),   BTN_Y, max_resize_btn_surf);
 
     end_draw(cr);
 }
@@ -280,12 +304,12 @@ void draw_taskbar(void) {
         cairo_stroke(cr);
     }
 
-    /* Botões das janelas */
+    /* Botões das janelas — apenas janelas minimizadas (estilo Inferno OS) */
     setup_font(cr, 1);
 
     int bx = 41;
     for (Win *c = wins; c; c = c->next) {
-        if (c->closing) continue;
+        if (c->closing || !c->minimized) continue;
         const char *lbl = c->title[0] ? c->title : "app";
         cairo_text_extents_t te; cairo_text_extents(cr, lbl, &te);
         int bw = (int)te.x_advance + TASKBAR_PAD * 2;

@@ -9,8 +9,8 @@
 void draw_bevel(cairo_t *cr, double x, double y, double w, double h, int raised);
 
 /* =========================================================================
- * draw_btn — botão com bevel + gradiente + símbolo (21x21)
+ * draw_btn — botão com bevel + gradiente + imagem XPM centralizada (21x21)
  * ========================================================================= */
-void draw_btn(cairo_t *cr, int x, int y, const char *type);
+void draw_btn(cairo_t *cr, int x, int y, cairo_surface_t *surf);
 
 #endif /* BUTTON_H */
